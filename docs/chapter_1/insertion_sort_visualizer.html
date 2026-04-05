@@ -1,0 +1,284 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0d1117; }
+
+  #root {
+    background: #0d1117;
+    color: #e6edf3;
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+    padding: 2rem 1.5rem 2.5rem;
+  }
+
+  .header { margin-bottom: 2rem; }
+  .tag { font-size: 11px; color: #7d8590; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+  .title { font-size: 22px; font-weight: 500; color: #e6edf3; margin-bottom: 4px; }
+  .subtitle { font-size: 12px; color: #7d8590; }
+
+  .array-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .cell-idx {
+    font-size: 10px;
+    color: #484f58;
+    letter-spacing: 0.04em;
+  }
+  .cell-box {
+    width: 52px;
+    height: 52px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 500;
+    border: 1px solid #30363d;
+    background: #161b22;
+    color: #e6edf3;
+    transition: background 0.25s, border-color 0.25s, color 0.25s, transform 0.15s;
+  }
+  .cell-box.sorted   { background: #0d2d1f; border-color: #238636; color: #3fb950; }
+  .cell-box.key      { background: #2d1f00; border-color: #9e6a03; color: #e3b341; }
+  .cell-box.compare  { background: #0d1f3d; border-color: #1f6feb; color: #58a6ff; }
+  .cell-box.shift    { background: #2d0f0f; border-color: #8b1a1a; color: #f85149; }
+  .cell-box.bump     { transform: translateY(-4px); }
+
+  .info-block {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  .info-label { font-size: 10px; color: #7d8590; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+  .info-main  { font-size: 14px; color: #e6edf3; font-weight: 500; min-height: 20px; }
+  .info-sub   { font-size: 12px; color: #7d8590; margin-top: 4px; min-height: 18px; }
+
+  .progress-bar {
+    height: 2px;
+    background: #21262d;
+    border-radius: 2px;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: #238636;
+    border-radius: 2px;
+    transition: width 0.3s;
+  }
+
+  .controls {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .btn {
+    padding: 7px 16px;
+    border-radius: 6px;
+    border: 1px solid #30363d;
+    background: #21262d;
+    color: #e6edf3;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .btn:hover:not(:disabled) { background: #30363d; border-color: #484f58; }
+  .btn:disabled { opacity: 0.3; cursor: default; }
+  .btn.primary { background: #238636; border-color: #2ea043; color: #fff; }
+  .btn.primary:hover:not(:disabled) { background: #2ea043; }
+
+  .legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #7d8590; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 2px; }
+
+  .log-block {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .log-header {
+    padding: 8px 1.25rem;
+    border-bottom: 1px solid #21262d;
+    font-size: 10px;
+    color: #7d8590;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .log-body { max-height: 160px; overflow-y: auto; }
+  .log-line {
+    padding: 6px 1.25rem;
+    font-size: 11px;
+    color: #484f58;
+    border-bottom: 1px solid #21262d;
+    display: flex;
+    gap: 8px;
+  }
+  .log-line:last-child { border-bottom: none; }
+  .log-line.active { color: #e6edf3; background: #1c2128; }
+  .log-line .log-step { color: #484f58; min-width: 28px; }
+  .log-line.active .log-step { color: #3fb950; }
+  .log-arr { color: #58a6ff; }
+  .log-line.active .log-arr { color: #79c0ff; }
+</style>
+
+<div id="root">
+  <div class="header">
+    <div class="tag">algorithm / sorting</div>
+    <div class="title">Insertion sort</div>
+    <div class="subtitle">input &rarr; [1, 3, 7, 9, 6, 4]</div>
+  </div>
+
+  <div class="progress-bar"><div class="progress-fill" id="prog"></div></div>
+
+  <div class="array-row" id="arr-display"></div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#3fb950;border-radius:2px;"></div>sorted</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#e3b341;border-radius:2px;"></div>key (temp)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#58a6ff;border-radius:2px;"></div>comparing</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f85149;border-radius:2px;"></div>shifting</div>
+  </div>
+
+  <div class="info-block">
+    <div class="info-label">step</div>
+    <div class="info-main" id="info-main"></div>
+    <div class="info-sub" id="info-sub"></div>
+  </div>
+
+  <div class="controls">
+    <button class="btn" id="btn-prev">&#8592; prev</button>
+    <button class="btn primary" id="btn-next">next &#8594;</button>
+    <button class="btn" id="btn-reset">reset</button>
+  </div>
+
+  <div class="log-block">
+    <div class="log-header">
+      <span>execution log</span>
+      <span id="step-counter" style="color:#e6edf3;"></span>
+    </div>
+    <div class="log-body" id="log-body"></div>
+  </div>
+</div>
+
+<script>
+const initial = [1,3,7,9,6,4];
+
+function buildSteps() {
+  const steps = [];
+  const arr = [...initial];
+
+  function snap(a, states, label, desc) {
+    steps.push({ arr:[...a], states:[...states], label, desc });
+  }
+
+  snap(arr, arr.map(()=>'normal'), 'Initial array', '[1, 3, 7, 9, 6, 4]');
+
+  snap(arr,['compare','key','normal','normal','normal','normal'], 'i=1, key=3', 'array[0]=1 > 3? → false, no shift');
+  snap(arr,['sorted','sorted','normal','normal','normal','normal'], 'Placed key=3', '[1, 3, 7, 9, 6, 4]');
+
+  snap(arr,['sorted','compare','key','normal','normal','normal'], 'i=2, key=7', 'array[1]=3 > 7? → false, no shift');
+  snap(arr,['sorted','sorted','sorted','normal','normal','normal'], 'Placed key=7', '[1, 3, 7, 9, 6, 4]');
+
+  snap(arr,['sorted','sorted','compare','key','normal','normal'], 'i=3, key=9', 'array[2]=7 > 9? → false, no shift');
+  snap(arr,['sorted','sorted','sorted','sorted','normal','normal'], 'Placed key=9', '[1, 3, 7, 9, 6, 4]');
+
+  snap(arr,['sorted','sorted','sorted','compare','key','normal'], 'i=4, key=6', 'array[3]=9 > 6? → true');
+  arr[4]=arr[3];
+  snap(arr,['sorted','sorted','sorted','shift','shift','normal'], 'Shift 9 right', '[1, 3, 7, 9, 9, 4]');
+  snap(arr,['sorted','sorted','compare','shift','shift','normal'], 'j=2: array[2]=7 > 6?', '→ true, shift 7');
+  arr[3]=arr[2];
+  snap(arr,['sorted','sorted','shift','shift','shift','normal'], 'Shift 7 right', '[1, 3, 7, 7, 9, 4]');
+  snap(arr,['sorted','compare','shift','shift','shift','normal'], 'j=1: array[1]=3 > 6?', '→ false, insert key');
+  arr[2]=6;
+  snap(arr,arr.map((_,i)=>i<5?'sorted':'normal'), 'Placed key=6', '[1, 3, 6, 7, 9, 4]');
+
+  snap(arr,['sorted','sorted','sorted','sorted','compare','key'], 'i=5, key=4', 'array[4]=9 > 4? → true');
+  arr[5]=arr[4];
+  snap(arr,['sorted','sorted','sorted','sorted','shift','shift'], 'Shift 9 right', '[1, 3, 6, 7, 9, 9]');
+  snap(arr,['sorted','sorted','sorted','compare','shift','shift'], 'j=3: array[3]=7 > 4?', '→ true, shift 7');
+  arr[4]=arr[3];
+  snap(arr,['sorted','sorted','sorted','shift','shift','shift'], 'Shift 7 right', '[1, 3, 6, 7, 7, 9]');
+  snap(arr,['sorted','sorted','compare','shift','shift','shift'], 'j=2: array[2]=6 > 4?', '→ true, shift 6');
+  arr[3]=arr[2];
+  snap(arr,['sorted','sorted','shift','shift','shift','shift'], 'Shift 6 right', '[1, 3, 6, 6, 7, 9]');
+  snap(arr,['sorted','compare','shift','shift','shift','shift'], 'j=1: array[1]=3 > 4?', '→ false, insert key');
+  arr[2]=4;
+  snap(arr,arr.map(()=>'sorted'), 'Sorted!', '[1, 3, 4, 6, 7, 9] — done');
+
+  return steps;
+}
+
+const steps = buildSteps();
+let cur = 0;
+
+function render() {
+  const s = steps[cur];
+
+  const disp = document.getElementById('arr-display');
+  disp.innerHTML = '';
+  s.arr.forEach((v,i) => {
+    const isSorted = s.states[i]==='sorted';
+    const cell = document.createElement('div');
+    cell.className = 'cell';
+    const idx = document.createElement('div');
+    idx.className = 'cell-idx';
+    idx.textContent = '['+i+']';
+    const box = document.createElement('div');
+    box.className = 'cell-box ' + s.states[i] + (s.states[i]==='shift'?' bump':'');
+    box.textContent = v;
+    cell.appendChild(idx);
+    cell.appendChild(box);
+    disp.appendChild(cell);
+  });
+
+  document.getElementById('info-main').textContent = s.label;
+  document.getElementById('info-sub').textContent = s.desc;
+  document.getElementById('prog').style.width = Math.round((cur/(steps.length-1))*100)+'%';
+  document.getElementById('step-counter').textContent = (cur+1)+' / '+steps.length;
+
+  document.getElementById('btn-prev').disabled = cur===0;
+  document.getElementById('btn-next').disabled = cur===steps.length-1;
+
+  const log = document.getElementById('log-body');
+  log.innerHTML = '';
+  steps.forEach((st,i) => {
+    const row = document.createElement('div');
+    row.className = 'log-line'+(i===cur?' active':'');
+    const arrStr = '['+st.arr.join(', ')+']';
+    row.innerHTML = '<span class="log-step">'+(i===cur?'▶':'  ')+(i+1)+'</span><span>'+st.label+'</span><span class="log-arr">'+arrStr+'</span>';
+    log.appendChild(row);
+  });
+  const active = log.querySelector('.active');
+  if(active) active.scrollIntoView({block:'nearest'});
+}
+
+document.getElementById('btn-next').onclick = () => { if(cur<steps.length-1){cur++;render();} };
+document.getElementById('btn-prev').onclick = () => { if(cur>0){cur--;render();} };
+document.getElementById('btn-reset').onclick = () => { cur=0;render(); };
+
+render();
+</script>
