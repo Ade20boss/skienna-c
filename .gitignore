@@ -1,0 +1,8 @@
+# Compiled physical binaries
+build/
+*.o
+*.out
+*.exe
+
+# OS generated files
+.DS_Store
