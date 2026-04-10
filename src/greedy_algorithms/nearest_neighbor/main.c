@@ -100,7 +100,7 @@ int main()
 
     // Print the full traversal path from origin, through all points, and back home
     printf("Path: ");
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < data_length; i++)
     {
         printf("%d -> ", shortest_path[i]);
     }
