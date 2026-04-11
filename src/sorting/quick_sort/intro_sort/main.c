@@ -29,13 +29,18 @@ void insertion_sort(int *arr, int n)
 
 void lazy_quicksort(int *arr, int low, int high)
 {
+
+    //return base case - lazy sorting, if array size is less than
+    //16 items we do nothing
     if ((high - low) < 16)
     {
         return;
     }
 
+    //Median of three calculation
     int middle = (low+high)/2;
 
+    
     if(arr[low] > arr[middle])
     {
         swap(&arr[low], &arr[middle]);
